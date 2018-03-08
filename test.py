@@ -6,7 +6,7 @@ import chardet
 import re
 
 
-def splitfiles(indir='in', outdir='out', tmpdir='tmp', splitter='At Time TIN'):
+def splitfiles(indir='in', outdir='out', tmpdir='tmp'):
     if not os.path.exists(outdir):
         os.mkdir(outdir)
 
@@ -28,6 +28,8 @@ def splitfiles(indir='in', outdir='out', tmpdir='tmp', splitter='At Time TIN'):
 
             headers = rows[0]
             print headers
+
+            splitter = split_column(input_file)
             splitter_index = headers.index(splitter)
             input_rows, output_rows, output_files = len(rows), 0, 0
             msgs = ''
@@ -37,6 +39,7 @@ def splitfiles(indir='in', outdir='out', tmpdir='tmp', splitter='At Time TIN'):
 
             for i, k in enumerate(d.keys()):
                 klean = ''.join([c for c in k if re.match(r'\w', c)])
+                klean = 'NA' if klean == '' else klean
                 split_file_path = os.path.join(outdir, '{f_root}_{k}{f_ext}'.format(
                     f_root=f_root, k=klean, f_ext=f_ext))
                 with open(split_file_path, 'wb') as csv_writefile:
@@ -65,6 +68,23 @@ def get_encoding(inputfile):
 
 def linkings(url):
     urls = {'assignable':'https://{url}/#/site/A3696/views/PatientProfileList_twb/PatientInformationProfileExport'}
+
+
+def split_column(filename):
+    file_columns = {
+        '_SNF': 'TIN Name',
+        '_IP': 'TIN Name',
+        '_HH': 'TIN Name',
+        '_ER': 'TIN Name',
+        '_AWV': 'At Time TIN',
+        '_Assignable': 'At Time TIN',
+        '_Assigned': 'At Time TIN'}
+
+    for k in file_columns.keys():
+        if k in filename:
+            return file_columns[k]
+
+    return 'TIN Name'
 
 
 if __name__ == "__main__":
